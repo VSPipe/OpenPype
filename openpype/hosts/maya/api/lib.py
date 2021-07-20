@@ -2252,8 +2252,10 @@ def get_attr_in_layer(attr, layer):
 
     try:
         if cmds.mayaHasRenderSetup():
-            from . import lib_rendersetup
-            return lib_rendersetup.get_attr_in_layer(attr, layer)
+            log.debug("lib.get_attr_in_layer is not "
+                      "optimized for render setup")
+            with renderlayer(layer):
+                return cmds.getAttr(attr)
     except AttributeError:
         pass
 
