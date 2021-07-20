@@ -727,7 +727,7 @@ class ExpectedFilesRedshift(AExpectedFiles):
 
         """
         prefix = super(ExpectedFilesRedshift, self).get_renderer_prefix()
-        prefix = "{}.<aov>".format(prefix)
+        prefix = "{}_<aov>".format(prefix)
         return prefix
 
     def get_files(self):
@@ -751,7 +751,7 @@ class ExpectedFilesRedshift(AExpectedFiles):
                     {aov_name: self._generate_single_file_sequence(layer_data)}
                 )
 
-        if layer_data.get("enabledAOVs"):
+        if layer_data.enabledAOVs:
             # because if Beauty is added manually, it will be rendered as
             # 'Beauty_other' in file name and "standard" beauty will have
             # 'Beauty' in its name. When disabled, standard output will be
