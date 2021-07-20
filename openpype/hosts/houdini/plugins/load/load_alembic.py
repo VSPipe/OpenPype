@@ -6,7 +6,9 @@ from avalon.houdini import pipeline, lib
 class AbcLoader(api.Loader):
     """Specific loader of Alembic for the avalon.animation family"""
 
-    families = ["model", "animation", "pointcache", "gpuCache"]
+    families = ["model",
+                "animation",
+                "pointcache"]
     label = "Load Alembic"
     representations = ["abc"]
     order = -10
@@ -66,9 +68,8 @@ class AbcLoader(api.Loader):
         null = container.createNode("null", node_name="OUT".format(name))
         null.setInput(0, normal_node)
 
-        # Ensure display flag is on the Alembic input node and not on the OUT
-        # node to optimize "debug" displaying in the viewport.
-        alembic.setDisplayFlag(True)
+        # Set display on last node
+        null.setDisplayFlag(True)
 
         # Set new position for unpack node else it gets cluttered
         nodes = [container, alembic, unpack, normal_node, null]
@@ -77,22 +78,18 @@ class AbcLoader(api.Loader):
 
         self[:] = nodes
 
-        return pipeline.containerise(
-            node_name,
-            namespace,
-            nodes,
-            context,
-            self.__class__.__name__,
-            suffix="",
-        )
+        return pipeline.containerise(node_name,
+                                     namespace,
+                                     nodes,
+                                     context,
+                                     self.__class__.__name__)
 
     def update(self, container, representation):
 
         node = container["node"]
         try:
-            alembic_node = next(
-                n for n in node.children() if n.type().name() == "alembic"
-            )
+            alembic_node = next(n for n in node.children() if
+                                n.type().name() == "alembic")
         except StopIteration:
             self.log.error("Could not find node of type `alembic`")
             return

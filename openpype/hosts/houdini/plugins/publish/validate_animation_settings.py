@@ -29,9 +29,8 @@ class ValidateAnimationSettings(pyblish.api.InstancePlugin):
 
         invalid = self.get_invalid(instance)
         if invalid:
-            raise RuntimeError(
-                "Output settings do no match for '%s'" % instance
-            )
+            raise RuntimeError("Output settings do no match for '%s'" %
+                               instance)
 
     @classmethod
     def get_invalid(cls, instance):
