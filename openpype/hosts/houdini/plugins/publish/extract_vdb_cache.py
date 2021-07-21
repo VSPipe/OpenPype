@@ -41,8 +41,8 @@ class ExtractVDBCache(openpype.api.Extractor):
             instance.data["representations"] = []
 
         representation = {
-            'name': 'mov',
-            'ext': 'mov',
+            'name': 'vdb',
+            'ext': 'vdb',
             'files': output,
             "stagingDir": staging_dir,
         }
