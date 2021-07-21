@@ -47,7 +47,7 @@ import attr
 
 import openpype.hosts.maya.api.lib as lib
 
-from maya import cmds
+from maya import cmds, mel
 import maya.app.renderSetup.model.renderSetup as renderSetup
 
 
@@ -799,8 +799,8 @@ class ExpectedFilesRedshift(AExpectedFiles):
             # anyway.
             return enabled_aovs
 
-        default_ext = cmds.getAttr(
-            "redshiftOptions.imageFormat", asString=True)
+        image_format = cmds.getAttr("redshiftOptions.imageFormat")  # integer
+        default_ext = mel.eval("redshiftGetImageExtension(%i)" % image_format)
         rs_aovs = cmds.ls(type="RedshiftAOV", referencedNodes=False)
 
         for aov in rs_aovs:
