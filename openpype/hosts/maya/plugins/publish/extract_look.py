@@ -24,15 +24,11 @@ HARDLINK = 2
 
 def find_paths_by_hash(texture_hash):
     """Find the texture hash key in the dictionary.
-
     All paths that originate from it.
-
     Args:
         texture_hash (str): Hash of the texture.
-
     Return:
         str: path to texture if found.
-
     """
     key = "data.sourceHashes.{0}".format(texture_hash)
     return io.distinct(key, {"type": "version"})
@@ -40,20 +36,16 @@ def find_paths_by_hash(texture_hash):
 
 def maketx(source, destination, *args):
     """Make `.tx` using `maketx` with some default settings.
-
     The settings are based on default as used in Arnold's
     txManager in the scene.
     This function requires the `maketx` executable to be
     on the `PATH`.
-
     Args:
         source (str): Path to source file.
         destination (str): Writing destination path.
         *args: Additional arguments for `maketx`.
-
     Returns:
         str: Output of `maketx` command.
-
     """
     cmd = [
         "maketx",
@@ -92,12 +84,9 @@ def maketx(source, destination, *args):
 @contextlib.contextmanager
 def no_workspace_dir():
     """Force maya to a fake temporary workspace directory.
-
     Note: This is not maya.cmds.workspace 'rootDirectory' but the 'directory'
-
     This helps to avoid Maya automatically remapping image paths to files
     relative to the currently set directory.
-
     """
 
     # Store current workspace
@@ -123,11 +112,9 @@ def no_workspace_dir():
 
 class ExtractLook(openpype.api.Extractor):
     """Extract Look (Maya Ascii + JSON)
-
     Only extracts the sets (shadingEngines and alike) alongside a .json file
     that stores it relationships for the sets and "attribute" data for the
     instance members.
-
     """
 
     label = "Extract Look (Maya ASCII + JSON)"
@@ -139,10 +126,8 @@ class ExtractLook(openpype.api.Extractor):
     @staticmethod
     def get_renderer_name():
         """Get renderer name from Maya.
-
         Returns:
             str: Renderer name.
-
         """
         renderer = cmds.getAttr(
             "defaultRenderGlobals.currentRenderer"
@@ -154,11 +139,9 @@ class ExtractLook(openpype.api.Extractor):
 
     def get_maya_scene_type(self, instance):
         """Get Maya scene type from settings.
-
         Args:
             instance (pyblish.api.Instance): Instance with collected
                 project settings.
-
         """
         ext_mapping = (
             instance.context.data["project_settings"]["maya"]["ext_mapping"]
@@ -178,10 +161,8 @@ class ExtractLook(openpype.api.Extractor):
 
     def process(self, instance):
         """Plugin entry point.
-
         Args:
             instance: Instance to process.
-
         """
         # Define extract output file path
         dir_path = self.staging_dir(instance)
@@ -380,18 +361,14 @@ class ExtractLook(openpype.api.Extractor):
 
     def resource_destination(self, instance, filepath, do_maketx):
         """Get resource destination path.
-
         This is utility function to change path if resource file name is
         changed by some external tool like `maketx`.
-
         Args:
             instance: Current Instance.
             filepath (str): Resource path
             do_maketx (bool): Flag if resource is processed by `maketx`.
-
         Returns:
             str: Path to resource file
-
         """
         resources_dir = instance.data["resourcesDir"]
 
