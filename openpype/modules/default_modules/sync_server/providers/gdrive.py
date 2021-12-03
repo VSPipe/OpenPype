@@ -61,7 +61,6 @@ class GDriveHandler(AbstractProvider):
     CHUNK_SIZE = 2097152  # must be divisible by 256! used for upload chunks
 
     def __init__(self, project_name, site_name, tree=None, presets=None):
-        self.presets = None
         self.active = False
         self.project_name = project_name
         self.site_name = site_name
@@ -82,10 +81,12 @@ class GDriveHandler(AbstractProvider):
             log.info(msg)
             return
 
-        self.service = self._get_gd_service(cred_path)
+        self.service = None
+        if self.presets["enabled"]:
+            self.service = self._get_gd_service(cred_path)
 
-        self._tree = tree
-        self.active = True
+            self._tree = tree
+            self.active = True
 
     def is_active(self):
         """
@@ -93,7 +94,7 @@ class GDriveHandler(AbstractProvider):
         Returns:
             (boolean)
         """
-        return self.service is not None
+        return self.presets["enabled"] and self.service is not None
 
     @classmethod
     def get_system_settings_schema(cls):
@@ -120,15 +121,22 @@ class GDriveHandler(AbstractProvider):
         editable = [
             # credentials could be overriden on Project or User level
             {
-                'key': "credentials_url",
-                'label': "Credentials url",
-                'type': 'text'
+                "type": "path",
+                "key": "credentials_url",
+                "label": "Credentials url",
+                "multiplatform": True,
+                "placeholder": "Credentials url"
             },
             # roots could be overriden only on Project leve, User cannot
             {
-                 'key': "roots",
-                 'label': "Roots",
-                 'type': 'dict'
+                "key": "root",
+                "label": "Roots",
+                "type": "dict-roots",
+                "object_type": {
+                    "type": "path",
+                    "multiplatform": False,
+                    "multipath": False
+                }
             }
         ]
         return editable
