@@ -12,8 +12,16 @@ from openpype.hosts.nuke.api.lib import (
 class LoadImage(api.Loader):
     """Load still image into Nuke"""
 
-    families = ["render", "source", "plate", "review", "image"]
-    representations = ["exr", "dpx", "jpg", "jpeg", "png", "psd"]
+    families = [
+        "render2d",
+        "source",
+        "plate",
+        "render",
+        "prerender",
+        "review",
+        "image"
+    ]
+    representations = ["exr", "dpx", "jpg", "jpeg", "png", "psd", "tiff"]
 
     label = "Load Image"
     order = -10
@@ -32,6 +40,10 @@ class LoadImage(api.Loader):
             help="What frame is reading from?"
         )
     ]
+
+    @classmethod
+    def get_representations(cls):
+        return cls.representations + cls._representations
 
     def load(self, context, name, namespace, options):
         from avalon.nuke import (
@@ -205,8 +217,7 @@ class LoadImage(api.Loader):
             "colorspace": version_data.get("colorspace"),
             "source": version_data.get("source"),
             "fps": str(version_data.get("fps")),
-            "author": version_data.get("author"),
-            "outputDir": version_data.get("outputDir"),
+            "author": version_data.get("author")
         })
 
         # change color of node

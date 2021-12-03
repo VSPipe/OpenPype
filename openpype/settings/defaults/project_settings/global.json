@@ -1,12 +1,20 @@
 {
     "publish": {
+        "CollectAnatomyInstanceData": {
+            "follow_workfile_version": false
+        },
         "ValidateEditorialAssetName": {
             "enabled": true,
             "optional": false
         },
         "ValidateVersion": {
             "enabled": true,
-            "optional": false
+            "optional": false,
+            "active": true
+        },
+        "ValidateIntent": {
+            "enabled": false,
+            "profiles": []
         },
         "IntegrateHeroVersion": {
             "enabled": true,
@@ -19,7 +27,7 @@
                 "animation",
                 "setdress",
                 "layout",
-                "mayaAscii"
+                "mayaScene"
             ]
         },
         "ExtractJpegEXR": {
@@ -44,6 +52,7 @@
                                 "burnin",
                                 "ftrackreview"
                             ],
+                            "burnins": [],
                             "ffmpeg_args": {
                                 "video_filters": [],
                                 "audio_filters": [],
@@ -310,10 +319,11 @@
     },
     "project_folder_structure": "{\"__project_root__\": {\"prod\": {}, \"resources\": {\"footage\": {\"plates\": {}, \"offline\": {}}, \"audio\": {}, \"art_dept\": {}}, \"editorial\": {}, \"assets[ftrack.Library]\": {\"characters[ftrack]\": {}, \"locations[ftrack]\": {}}, \"shots[ftrack.Sequence]\": {\"scripts\": {}, \"editorial[ftrack.Folder]\": {}}}}",
     "sync_server": {
-        "enabled": true,
+        "enabled": false,
         "config": {
             "retry_cnt": "3",
             "loop_delay": "60",
+            "always_accessible_on": [],
             "active_site": "studio",
             "remote_site": "studio"
         },
