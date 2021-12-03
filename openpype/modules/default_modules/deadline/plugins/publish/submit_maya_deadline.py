@@ -288,6 +288,22 @@ class MayaSubmitDeadline(pyblish.api.InstancePlugin):
                 "pluginInfo", {})
         )
 
+        self.limit_groups = (
+            context.data["project_settings"].get(
+                "deadline", {}).get(
+                "publish", {}).get(
+                "MayaSubmitDeadline", {}).get(
+                "limit", [])
+        )
+
+        self.group = (
+            context.data["project_settings"].get(
+                "deadline", {}).get(
+                "publish", {}).get(
+                "MayaSubmitDeadline", {}).get(
+                "group", "none")
+        )
+
         context = instance.context
         workspace = context.data["workspaceDir"]
         anatomy = context.data['anatomy']
@@ -351,6 +367,11 @@ class MayaSubmitDeadline(pyblish.api.InstancePlugin):
                             f.replace(orig_scene, new_scene)
                         )
                     instance.data["expectedFiles"] = [new_exp]
+
+                if instance.data.get("publishRenderMetadataFolder"):
+                    instance.data["publishRenderMetadataFolder"] = \
+                        instance.data["publishRenderMetadataFolder"].replace(
+                            orig_scene, new_scene)
                 self.log.info("Scene name was switched {} -> {}".format(
                     orig_scene, new_scene
                 ))

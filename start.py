@@ -100,8 +100,8 @@ import platform
 import traceback
 import subprocess
 import site
+import distutils.spawn
 from pathlib import Path
-
 
 # OPENPYPE_ROOT is variable pointing to build (or code) directory
 # WARNING `OPENPYPE_ROOT` must be defined before igniter import
@@ -125,6 +125,10 @@ else:
     paths.append(frozen_libs)
     os.environ["PYTHONPATH"] = os.pathsep.join(paths)
 
+# Vendored python modules that must not be in PYTHONPATH environment but
+#   are required for OpenPype processes
+vendor_python_path = os.path.join(OPENPYPE_ROOT, "vendor", "python")
+sys.path.insert(0, vendor_python_path)
 
 import blessed  # noqa: E402
 import certifi  # noqa: E402
@@ -190,6 +194,7 @@ else:
 import igniter  # noqa: E402
 from igniter import BootstrapRepos  # noqa: E402
 from igniter.tools import (
+    get_openpype_global_settings,
     get_openpype_path_from_db,
     validate_mongo_connection
 )  # noqa
@@ -275,6 +280,46 @@ def run(arguments: list, env: dict = None) -> int:
     return p.returncode
 
 
+def run_disk_mapping_commands(mongo_url):
+    """ Run disk mapping command
+
+        Used to map shared disk for OP to pull codebase.
+    """
+    settings = get_openpype_global_settings(mongo_url)
+
+    low_platform = platform.system().lower()
+    disk_mapping = settings.get("disk_mapping")
+    if not disk_mapping:
+        return
+
+    mappings = disk_mapping.get(low_platform) or []
+    for source, destination in mappings:
+        destination = destination.rstrip('/')
+        source = source.rstrip('/')
+
+        if low_platform == "windows":
+            args = ["subst", destination, source]
+        elif low_platform == "darwin":
+            scr = "do shell script \"ln -s {} {}\" with administrator privileges".format(source, destination)  # noqa: E501
+            args = ["osascript", "-e", scr]
+        else:
+            args = ["sudo", "ln", "-s", source, destination]
+
+        _print("disk mapping args:: {}".format(args))
+        try:
+            if not os.path.exists(destination):
+                output = subprocess.Popen(args)
+                if output.returncode and output.returncode != 0:
+                    exc_msg = "Executing was not successful: \"{}\"".format(
+                        args)
+
+                    raise RuntimeError(exc_msg)
+        except TypeError as exc:
+            _print("Error {} in mapping drive {}, {}".format(str(exc),
+                                                             source,
+                                                             destination))
+            raise
+
 def set_avalon_environments():
     """Set avalon specific environments.
 
@@ -340,23 +385,6 @@ def set_modules_environments():
         os.environ.update(env)
 
 
-def is_tool(name):
-    try:
-        import os.errno as errno
-    except ImportError:
-        import errno
-
-    try:
-        devnull = open(os.devnull, "w")
-        subprocess.Popen(
-            [name], stdout=devnull, stderr=devnull
-        ).communicate()
-    except OSError as exc:
-        if exc.errno == errno.ENOENT:
-            return False
-    return True
-
-
 def _startup_validations():
     """Validations before OpenPype starts."""
     try:
@@ -399,18 +427,31 @@ def _validate_thirdparty_binaries():
     if low_platform == "windows":
         ffmpeg_dir = os.path.join(ffmpeg_dir, "bin")
     ffmpeg_executable = os.path.join(ffmpeg_dir, "ffmpeg")
-    if not is_tool(ffmpeg_executable):
+    ffmpeg_result = distutils.spawn.find_executable(ffmpeg_executable)
+    if ffmpeg_result is None:
         raise RuntimeError(error_msg.format("FFmpeg"))
 
     # Validate existence of OpenImageIO (not on MacOs)
-    if low_platform != "darwin":
+    oiio_tool_path = None
+    if low_platform == "linux":
+        oiio_tool_path = os.path.join(
+            binary_vendors_dir,
+            "oiio",
+            low_platform,
+            "bin",
+            "oiiotool"
+        )
+    elif low_platform == "windows":
         oiio_tool_path = os.path.join(
             binary_vendors_dir,
             "oiio",
             low_platform,
             "oiiotool"
         )
-        if not is_tool(oiio_tool_path):
+    oiio_result = None
+    if oiio_tool_path is not None:
+        oiio_result = distutils.spawn.find_executable(oiio_tool_path)
+        if oiio_result is None:
             raise RuntimeError(error_msg.format("OpenImageIO"))
 
 
@@ -885,6 +926,9 @@ def boot():
 
     os.environ["OPENPYPE_MONGO"] = openpype_mongo
     os.environ["OPENPYPE_DATABASE_NAME"] = "openpype"  # name of Pype database
+
+    _print(">>> run disk mapping command ...")
+    run_disk_mapping_commands(openpype_mongo)
 
     # Get openpype path from database and set it to environment so openpype can
     # find its versions there and bootstrap them.

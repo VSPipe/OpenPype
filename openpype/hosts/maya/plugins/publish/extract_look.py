@@ -205,6 +205,9 @@ class ExtractLook(openpype.api.Extractor):
         lookdata = instance.data["lookData"]
         relationships = lookdata["relationships"]
         sets = relationships.keys()
+        if not sets:
+            self.log.info("No sets found")
+            return
 
         results = self.process_resources(instance, staging_dir=dir_path)
         transfers = results["fileTransfers"]
@@ -329,10 +332,10 @@ class ExtractLook(openpype.api.Extractor):
             if do_maketx and files_metadata[filepath]["color_space"].lower() == "srgb":  # noqa: E501
                 linearize = True
                 # set its file node to 'raw' as tx will be linearized
-                files_metadata[filepath]["color_space"] = "raw"
+                files_metadata[filepath]["color_space"] = "Raw"
 
-            if do_maketx:
-                color_space = "raw"
+            # if do_maketx:
+            #     color_space = "Raw"
 
             source, mode, texture_hash = self._process_texture(
                 filepath,
@@ -380,11 +383,11 @@ class ExtractLook(openpype.api.Extractor):
                 color_space = cmds.getAttr(color_space_attr)
             except ValueError:
                 # node doesn't have color space attribute
-                color_space = "raw"
+                color_space = "Raw"
             else:
-                if files_metadata[source]["color_space"] == "raw":
+                if files_metadata[source]["color_space"] == "Raw":
                     # set color space to raw if we linearized it
-                    color_space = "raw"
+                    color_space = "Raw"
                 # Remap file node filename to destination
                 remap[color_space_attr] = color_space
             attr = resource["attribute"]
