@@ -29,10 +29,25 @@ from .vendor_bin_utils import (
     is_oiio_supported
 )
 
+from .attribute_definitions import (
+    AbtractAttrDef,
+
+    UIDef,
+    UISeparatorDef,
+    UILabelDef,
+
+    UnknownDef,
+    NumberDef,
+    TextDef,
+    EnumDef,
+    BoolDef,
+    FileDef,
+    FileDefItem,
+)
+
 from .env_tools import (
     env_value_to_bool,
     get_paths_from_environ,
-    get_global_environments
 )
 
 from .terminal import Terminal
@@ -90,6 +105,7 @@ from .transcoding import (
     get_transcode_temp_directory,
     should_convert_for_ffmpeg,
     convert_for_ffmpeg,
+    convert_input_paths_for_ffmpeg,
     get_ffprobe_data,
     get_ffprobe_streams,
     get_ffmpeg_codec_args,
@@ -206,6 +222,12 @@ from .openpype_version import (
     is_current_version_higher_than_expected
 )
 
+
+from .connections import (
+    requests_get,
+    requests_post
+)
+
 terminal = Terminal
 
 __all__ = [
@@ -226,12 +248,25 @@ __all__ = [
 
     "env_value_to_bool",
     "get_paths_from_environ",
-    "get_global_environments",
 
     "get_vendor_bin_path",
     "get_oiio_tools_path",
     "get_ffmpeg_tool_path",
     "is_oiio_supported",
+
+    "AbtractAttrDef",
+
+    "UIDef",
+    "UISeparatorDef",
+    "UILabelDef",
+
+    "UnknownDef",
+    "NumberDef",
+    "TextDef",
+    "EnumDef",
+    "BoolDef",
+    "FileDef",
+    "FileDefItem",
 
     "import_filepath",
     "modules_from_path",
@@ -242,6 +277,7 @@ __all__ = [
     "get_transcode_temp_directory",
     "should_convert_for_ffmpeg",
     "convert_for_ffmpeg",
+    "convert_input_paths_for_ffmpeg",
     "get_ffprobe_data",
     "get_ffprobe_streams",
     "get_ffmpeg_codec_args",
@@ -362,4 +398,7 @@ __all__ = [
     "is_running_from_build",
     "is_running_staging",
     "is_current_version_studio_latest",
+
+    "requests_get",
+    "requests_post"
 ]

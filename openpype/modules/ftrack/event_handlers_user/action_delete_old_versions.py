@@ -5,10 +5,10 @@ import uuid
 import clique
 from pymongo import UpdateOne
 
-from avalon.api import AvalonMongoDB
 
 from openpype.api import Anatomy
 from openpype.lib import StringTemplate, TemplateUnsolved
+from openpype.pipeline import AvalonMongoDB
 from openpype_modules.ftrack.lib import BaseAction, statics_icon
 
 
@@ -492,7 +492,8 @@ class DeleteOldVersions(BaseAction):
                         os.remove(file_path)
                         self.log.debug("Removed file: {}".format(file_path))
 
-                    remainders.remove(file_path_base)
+                    if file_path_base in remainders:
+                        remainders.remove(file_path_base)
                     continue
 
                 seq_path_base = os.path.split(seq_path)[1]
@@ -568,7 +569,7 @@ class DeleteOldVersions(BaseAction):
                 context["frame"] = self.sequence_splitter
                 sequence_path = os.path.normpath(
                     StringTemplate.format_strict_template(
-                        context, template
+                        template, context
                     )
                 )
 
